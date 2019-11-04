@@ -90,12 +90,20 @@ def section_text(node):
     return 'Attribution: {}'.format(node.find('h4').text)
 
 def aside_html(node):
-    url = node.find('a').attrs['href']
-    return f'<a href="{url}">{url}</a>'
+    a_tag = node.find('a')
+    if not a_tag:
+        return '<p>Aside: {}</p>'.format(node.text)
+    else:
+        url = a_tag.attrs['href']
+        return f'<a href="{url}">{url}</a>'
 
 def aside_text(node):
-    url = node.find('a').attrs['href']
-    return f'URL: {url}'
+    a_tag = node.find('a')
+    if not a_tag:
+        return 'Aside: {}'.format(node.text)
+    else:
+        url = a_tag.attrs['href']
+        return f'URL: {url}'
 
 def figcaption_html(node):
     return '<figcaption>{}</figcaption>'.format(node.text)
@@ -247,8 +255,12 @@ def main(url, nextOne):
                     if exc.errno != errno.EEXIST:
                         raise
 
-                content = pageSoup.find('div', {'class': 'js_expandable-container'})
-                (html, text) = doc_author_content(content, fullTitle, False)
+                try:
+                    content = pageSoup.find('div', {'class': 'js_expandable-container'})
+                    (html, text) = doc_author_content(content, fullTitle, False)
+                except:
+                    print('Sorry, problems parsing {}, skipping'.format(a))
+                    continue
 
                 with open('{}/{}.txt'.format(fullTitle, 'contents'), 'w') as f:
                     print('Writing text')
