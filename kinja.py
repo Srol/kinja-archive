@@ -268,17 +268,21 @@ def main(url, nextOne, grab_images):
                     print('Sorry, problems parsing {}, skipping'.format(a))
                     continue
 
-                with open('{}/{}.txt'.format(fullTitle, 'contents'), 'w') as f:
-                    f.write("HEADLINE: " + realTitle + "\n")
-                    f.write("Published: " + isotime + "\n")
-                    f.write("Original URL : " + a + "\n\n")
-                    f.write(text + "\n")
+                try:
+                    with open('{}/{}.txt'.format(fullTitle, 'contents'), 'w') as f:
+                        f.write("HEADLINE: " + realTitle + "\n")
+                        f.write("Published: " + isotime + "\n")
+                        f.write("Original URL : " + a + "\n\n")
+                        f.write(text + "\n")
 
-                with open('{}/{}.html'.format(fullTitle, 'contents'), 'w') as f:
-                    f.write('<html><head><title>{}</title></head><body><h1>{}</h1>'.format(realTitle, realTitle))
-                    f.write('<p>Published: {} at <a href="{}">{}</a></p>\n'.format(isotime, a, a))
-                    f.write(html)
-                    f.write('</body></html>\n')
+                    with open('{}/{}.html'.format(fullTitle, 'contents'), 'w') as f:
+                        f.write('<html><head><title>{}</title></head><body><h1>{}</h1>'.format(realTitle, realTitle))
+                        f.write('<p>Published: {} at <a href="{}">{}</a></p>\n'.format(isotime, a, a))
+                        f.write(html)
+                        f.write('</body></html>\n')
+                except:
+                    print('Sorry, problems writing the files, probably character set. Working on this.')
+                    continue
 
 if __name__ == '__main__':
     import argparse
