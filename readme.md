@@ -2,6 +2,8 @@
 
 This code downloads your Kinja archive.
 
+**Important**: this attempts to intelligently filter content, so some of your text, especially using unusual features like attributions, may be left behind.
+
 Python 3.7 is recommended. Not sure how far back this would go.
 
 You'll need library bs4 as well.
