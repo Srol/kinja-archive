@@ -169,7 +169,6 @@ def retrieve_image(node, directory):
     local_file = '{}/{}.{}'.format(directory, image_name,
                                    image_extension)
     with open(local_file, 'wb') as imagefh:
-        print('Creating {}'.format(local_file))
         imagefh.write(img)
 
 def node_author_content(node, directory,
@@ -263,14 +262,12 @@ def main(url, nextOne, grab_images):
                     continue
 
                 with open('{}/{}.txt'.format(fullTitle, 'contents'), 'w') as f:
-                    print('Writing text')
                     f.write("HEADLINE: " + realTitle + "\n")
                     f.write("Published: " + isotime + "\n")
                     f.write("Original URL : " + a + "\n\n")
                     f.write(text + "\n")
 
                 with open('{}/{}.html'.format(fullTitle, 'contents'), 'w') as f:
-                    print('Writing html')
                     f.write('<html><head><title>{}</title></head><body><h1>{}</h1>'.format(realTitle, realTitle))
                     f.write('<p>Published: {} at <a href="{}">{}</a></p>\n'.format(isotime, a, a))
                     f.write(html)
