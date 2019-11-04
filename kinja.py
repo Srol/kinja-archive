@@ -215,11 +215,10 @@ def main(url, nextOne, grab_images):
         page = urllib.request.urlopen(url + nextOne).read()
         soup = BeautifulSoup(page, "html.parser")
         pageLinks = []
-        for link in soup.findAll("a", {"class": "js_link sc-1out364-0 fwjlmD"}):
-            if link.find("h1"):
-                l = link.get("href")
-                if l not in pageLinks:
-                    pageLinks.append(l)
+        for div in soup.findAll("div", {"class": "js_save-badge"}):
+            l = div.attrs['data-post-permalink']
+            if l not in pageLinks:
+                pageLinks.append(l)
         for link in soup.findAll("a"):
             if link.get("href") and link.get("href").startswith("?startIndex=") == True and link.get("href") != nextOne:
                 nextOne = link.get("href")
