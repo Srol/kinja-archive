@@ -200,6 +200,13 @@ def year_month(timestr):
         return (m.group(1), m.group(2))
     return 'unknown-unknown'
 
+## For testing
+def one_off(url):
+    page = urllib.request.urlopen(url).read()
+    soup = BeautifulSoup(page, "html.parser")
+    content = soup.find('div', {'class': 'js_expandable-container'})
+    return doc_author_content(content, 'irrelevant', False)
+
 def main(url, nextOne, grab_images):
     keepGoing = True
     while keepGoing:

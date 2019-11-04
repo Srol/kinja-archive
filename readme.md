@@ -4,6 +4,8 @@ This code downloads your Kinja archive.
 
 **Important**: this attempts to intelligently filter content, so some of your text, especially using unusual features like attributions, may be left behind.
 
+**ALSO**: Pages without titles and pages with Unicode (emoji, non-ascii characters) are probably not going to work yet, sorry.
+
 Python 3.7 is recommended. Not sure how far back this would go.
 
 You'll need library bs4 as well.
