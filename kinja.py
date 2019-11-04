@@ -164,7 +164,7 @@ def retrieve_image(node, directory):
     image_name = figure_img_id(node)
     image_extension = figure_img_format(node)
     url = img_url(image_name, image_extension)
-    img = urllib.request.urlopen(url + nextOne).read()
+    img = urllib.request.urlopen(url).read()
     ## XXX: Fix this with Python's OS path wrapper logic
     local_file = '{}/{}.{}'.format(directory, image_name,
                                    image_extension)
@@ -201,7 +201,7 @@ def year_month(timestr):
         return (m.group(1), m.group(2))
     return 'unknown-unknown'
 
-def main(url, nextOne):
+def main(url, nextOne, grab_images):
     keepGoing = True
     while keepGoing:
         print(nextOne)
@@ -257,7 +257,7 @@ def main(url, nextOne):
 
                 try:
                     content = pageSoup.find('div', {'class': 'js_expandable-container'})
-                    (html, text) = doc_author_content(content, fullTitle, False)
+                    (html, text) = doc_author_content(content, fullTitle, grab_images)
                 except:
                     print('Sorry, problems parsing {}, skipping'.format(a))
                     continue
@@ -285,6 +285,8 @@ if __name__ == '__main__':
     parser.add_argument('--continue', dest='next',
                         help='Pick up where a previous ran left off by passing the "?startIndex=" value last seen',
                         default="")
+    parser.add_argument('--images', action='store_true',
+                        help='Beta: grab your images alongside your document')
 
     args = parser.parse_args()
-    main('https://kinja.com/{}'.format(args.username), args.next)
+    main('https://kinja.com/{}'.format(args.username), args.next, args.images)
