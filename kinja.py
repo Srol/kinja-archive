@@ -200,15 +200,28 @@ def year_month(timestr):
         return (m.group(1), m.group(2))
     return 'unknown-unknown'
 
-## For testing
-def one_off(url):
-    page = urllib.request.urlopen(url).read()
-    soup = BeautifulSoup(page, "html.parser")
-    content = soup.find('div', {'class': 'js_expandable-container'})
-    return doc_author_content(content, 'irrelevant', False)
+## This works for the two types of documents I'm aware of (posts with
+## lots of content, vs single-item video/gif content) but I can't
+## guarantee the logic will always work.
+##
+## Specifically, sometimes 'js_post-content' is the parent of
+## 'js_expandable-container', where the content lives, but sometimes
+## they're in parallel and 'js_expandable-content' is empty.
+def pick_content_block(soup, classes):
+    for c in classes:
+        possible = soup.find('div', {'class': c})
+
+        if len(list(possible.children)) > 0:
+            return possible
+
+    print('No content found for post, skipping')
+    return None
 
 def main(url, nextOne, grab_images):
     keepGoing = True
+    successful = 0
+    errored = []
+
     while keepGoing:
         print(nextOne)
         keepGoing = False
@@ -231,6 +244,7 @@ def main(url, nextOne, grab_images):
             except urllib.error.HTTPError as e:
                 print("Error fetching article: " + a)
                 print(e)
+                errored.append(a)
             else:
                 pageSoup = BeautifulSoup(articlePage, "html.parser")
                 isotime = pageSoup.find('time').attrs['datetime']
@@ -258,13 +272,20 @@ def main(url, nextOne, grab_images):
                     os.makedirs(fullTitle)
                 except OSError as exc:
                     if exc.errno != errno.EEXIST:
+                        errored.append(a)
                         raise
 
                 try:
-                    content = pageSoup.find('div', {'class': 'js_expandable-container'})
+                    content = pick_content_block(pageSoup,
+                                                 ['js_expandable-container',
+                                                  'js_post-content'])
+                    if not content:
+                        errored.append(a)
+                        continue
                     (html, text) = doc_author_content(content, fullTitle, grab_images)
                 except:
                     print('Sorry, problems parsing {}, skipping'.format(a))
+                    errored.append(a)
                     continue
 
                 try:
@@ -279,9 +300,23 @@ def main(url, nextOne, grab_images):
                         f.write('<p>Published: {} at <a href="{}">{}</a></p>\n'.format(isotime, a, a))
                         f.write(html)
                         f.write('</body></html>\n')
+                    successful += 1
                 except:
-                    print('Sorry, problems writing the files, probably character set. Working on this.')
+                    print('Sorry, problems writing the files, perhaps Unicode issues?')
+                    errored.append(a)
                     continue
+    print('''Summary:
+  {}  downloaded successfully
+  {}  had problems
+'''.format(successful, len(errored)))
+
+    if len(errored) > 0:
+          print('''
+URLs with errors:
+---
+''')
+          for e in errored:
+              print(e)
 
 if __name__ == '__main__':
     import argparse
