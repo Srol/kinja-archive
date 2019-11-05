@@ -1,11 +1,21 @@
 # kinja-archive
 
-This is a file I wrote for some friends who used to work at Gawker to scrape their post archives into a text format. I've since updated it for changes to Kinja, but decided to change the name since Gawker posts are no longer on Kinja.
+This code downloads your Kinja archive.
 
-This is a work in progress, and in its current form it will require you to know how too use a command line and Python 3. I wouldn't recommend trying this wrote unless you're comfortable with programming. I'm working on making it user friendly.
+**Important**: this attempts to intelligently filter content, so some of your text, especially using unusual features like attributions, may be left behind.
 
-Currently, in order to run, you will need to edit kinja.py and change the variable "url" on line 14 to that of your Kinja profile page. 
+**ALSO**: Pages without titles and pages with Unicode (emoji, non-ascii characters) are probably not going to work yet, sorry.
 
-```url = "https://kinja.com/your-profile-here"```
+Python 3.7 is recommended. Not sure how far back this would go.
 
-Then simply run `python kinja.py` and it will take care of the rest.
+You'll need library bs4 as well.
+
+Run it: python kinja.py <username> [--images]
+
+Where 'username' is your real Kinja username, where your profile lives,
+and --images will download the images in your articles if you wish.
+
+The script will create new folders underneath by year.
+
+I take no blame for bandwidth costs or any other ill consequences. Don't
+run this in an environment where you might break anything.
