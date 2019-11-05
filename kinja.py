@@ -217,6 +217,14 @@ def pick_content_block(soup, classes):
     print('No content found for post, skipping')
     return None
 
+def find_post_id(soup):
+    return soup.find('div', {'class': 'js_save-badge'}).attrs['data-post-id']
+
+def post_json(post_id):
+    if post_id:
+        return f'https://kinja.com/api/core/post/{post_id}'
+    raise ValueError('no post id')
+
 def main(url, nextOne, grab_images):
     keepGoing = True
     successful = 0
@@ -247,6 +255,8 @@ def main(url, nextOne, grab_images):
                 errored.append(a)
             else:
                 pageSoup = BeautifulSoup(articlePage, "html.parser")
+                postId = find_post_id(pageSoup)
+                postJson = urllib.request.urlopen(post_json(postId)).read()
                 isotime = pageSoup.find('time').attrs['datetime']
                 (year, month) = year_month(isotime)
                 filepath = year + "/" + month + "/"
@@ -263,19 +273,27 @@ def main(url, nextOne, grab_images):
                 postTitle = "".join([c for c in preTitle if re.match(r"\w", c)])
                 fullTitle = filepath + postTitle
 
-                notitle = 1
-                while os.path.exists(fullTitle):
-                    fullTitle = fullTitle + str(notitle)
-                    notitle += 1
+                titleversion = 1
+                testTitle = fullTitle
+                while os.path.exists(testTitle):
+                    testTitle = fullTitle + str(titleversion)
+                    titleversion += 1
 
+                fullTitle = testTitle
                 try:
                     os.makedirs(fullTitle)
+
                 except OSError as exc:
                     if exc.errno != errno.EEXIST:
                         errored.append(a)
                         raise
 
                 try:
+                    with open('{}/{}.json'.format(fullTitle, 'kinja_api'), 'w') as f:
+                        import json, pprint
+
+                        f.write(pprint.PrettyPrinter().pformat(json.loads(postJson)))
+
                     content = pick_content_block(pageSoup,
                                                  ['js_expandable-container',
                                                   'js_post-content'])
@@ -284,7 +302,7 @@ def main(url, nextOne, grab_images):
                         continue
                     (html, text) = doc_author_content(content, fullTitle, grab_images)
                 except:
-                    print('Sorry, problems parsing {}, skipping'.format(a))
+                    print('Sorry, problems parsing, skipping'.format(a))
                     errored.append(a)
                     continue
 
