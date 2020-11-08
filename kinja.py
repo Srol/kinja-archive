@@ -225,13 +225,14 @@ def post_json(post_id):
         return f'https://kinja.com/api/core/post/{post_id}'
     raise ValueError('no post id')
 
-def main(url, nextOne, grab_images):
+def main(url, nextOne, grab_images, only_print_urls):
     keepGoing = True
     successful = 0
     errored = []
 
     while keepGoing:
-        print(nextOne)
+        if not only_print_urls:
+            print(nextOne)
         keepGoing = False
         page = urllib.request.urlopen(url + nextOne).read()
         soup = BeautifulSoup(page, "html.parser")
@@ -245,6 +246,10 @@ def main(url, nextOne, grab_images):
                 nextOne = link.get("href")
                 keepGoing = True
         for a in pageLinks:
+            if only_print_urls:
+                print(a)
+                continue
+
             try:
                 articlePage = urllib.request.urlopen(a).read()
                 print('Fetched: {}'.format(a))
@@ -323,18 +328,19 @@ def main(url, nextOne, grab_images):
                     print('Sorry, problems writing the files, perhaps Unicode issues?')
                     errored.append(a)
                     continue
-    print('''Summary:
+    if not only_print_urls:
+        print('''Summary:
   {}  downloaded successfully
   {}  had problems
 '''.format(successful, len(errored)))
 
-    if len(errored) > 0:
-          print('''
+        if len(errored) > 0:
+            print('''
 URLs with errors:
 ---
 ''')
-          for e in errored:
-              print(e)
+            for e in errored:
+                print(e)
 
 if __name__ == '__main__':
     import argparse
@@ -346,7 +352,9 @@ if __name__ == '__main__':
                         help='Pick up where a previous ran left off by passing the "?startIndex=" value last seen',
                         default="")
     parser.add_argument('--images', action='store_true',
-                        help='Beta: grab your images alongside your document')
+                        help='Grab your images alongside your document')
+    parser.add_argument('--urls-only', action='store_true',
+                        help='Just discover and print your post URLs')
 
     args = parser.parse_args()
-    main('https://kinja.com/{}'.format(args.username), args.next, args.images)
+    main('https://kinja.com/{}'.format(args.username), args.next, args.images, args.urls_only)
