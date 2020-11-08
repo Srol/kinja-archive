@@ -211,7 +211,7 @@ def pick_content_block(soup, classes):
     for c in classes:
         possible = soup.find('div', {'class': c})
 
-        if len(list(possible.children)) > 0:
+        if possible and len(list(possible.children)) > 0:
             return possible
 
     print('No content found for post, skipping')
@@ -314,7 +314,7 @@ def main(url, nextOne, grab_images):
                         f.write(text + "\n")
 
                     with open('{}/{}.html'.format(fullTitle, 'contents'), 'w') as f:
-                        f.write('<html><head><title>{}</title></head><body><h1>{}</h1>'.format(realTitle, realTitle))
+                        f.write('<html><head><title>{}</title><meta charset="UTF-8"></head><body><h1>{}</h1>'.format(realTitle, realTitle))
                         f.write('<p>Published: {} at <a href="{}">{}</a></p>\n'.format(isotime, a, a))
                         f.write(html)
                         f.write('</body></html>\n')
